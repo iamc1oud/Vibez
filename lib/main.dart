@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:vibez/screens/instagram_view/instagram_main_page.dart';
 import 'package:vibez/theme.dart';
 
 void main() {
@@ -12,19 +14,18 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      themeMode: ThemeMode.dark,
-      darkTheme: AppTheme.darkTheme,
-      theme: AppTheme.lightTheme,
-      home: SplashScreen(),
-    );
+        themeMode: ThemeMode.dark,
+        darkTheme: AppTheme.darkTheme,
+        theme: AppTheme.lightTheme,
+        home: Dashboard());
   }
 }
 
-class SplashScreen extends StatelessWidget {
+class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text("Splash Screen"),
+    return Scaffold(
+      body: InstagramMainPage(),
     );
   }
 }
