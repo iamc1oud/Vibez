@@ -38,6 +38,10 @@ class InstagramRepository with HttpService {
     result.putIfAbsent("username", () => shortcodeMedia["owner"]["username"]);
     result.putIfAbsent("thumbnail_src", () => shortcodeMedia["thumbnail_src"]);
     result.putIfAbsent("link", () => shortcodeMedia["video_url"]);
+    result.putIfAbsent(
+        "caption",
+        () => shortcodeMedia["edge_media_to_caption"]["edges"][0]["node"]
+            ["text"]);
     return result;
   }
 }

@@ -5,11 +5,14 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/iconic_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:hive/hive.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sticky_headers/sticky_headers/widget.dart';
 import 'package:vibez/_utils/constants.dart';
 import 'package:vibez/_utils/screen_size.dart';
 import 'package:vibez/screens/instagram_view/instagram_download_link_field_page.dart';
 import 'package:vibez/screens/instagram_view/instagram_download_section.dart';
+import 'package:vibez/widgets/sliver_list_header.dart';
 import 'package:vibez/widgets/styled_load_spinner.dart';
 
 class InstagramMainPage extends StatefulWidget {
@@ -41,12 +44,8 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
           ? StyledLoadSpinner()
           : CustomScrollView(
               slivers: [
-                SliverList(
-                  delegate: SliverChildListDelegate([
-                    InstagramLinkPage(),
-                    DownloadSection(),
-                  ]),
-                ),
+                InstagramLinkPage(),
+                DownloadSection(),
                 SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                   return _buildMetadataCard(
@@ -54,19 +53,34 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
                 }, childCount: storageBox?.keys.length ?? 0))
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var directory = (await getExternalStorageDirectory())!.path;
-          var files = Directory(directory).listSync();
-        },
-        child: Text("Get files"),
-      ),
     );
+  }
+
+  SliverPersistentHeader makeHeader({
+    Widget? child,
+  }) {
+    return SliverPersistentHeader(
+        pinned: true,
+        floating: false,
+        delegate: SliverAppBarDelegate(
+            maxHeight: 150,
+            minHeight: 120,
+            child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: kPadding / 2,
+                ),
+                child: Container(
+                    padding: EdgeInsets.only(
+                      left: kPadding,
+                    ),
+                    color: Colors.white,
+                    child: child))));
   }
 
   Widget _buildMetadataCard(dynamic data) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: kPadding),
+      padding:
+          EdgeInsets.symmetric(horizontal: kPadding, vertical: kPadding / 2),
       child: Column(
         children: [
           Row(
@@ -85,29 +99,58 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
               IconButton(
                 icon: Icon(
                   Iconic.share,
-                  size: 14,
+                  size: 16,
                 ),
                 onPressed: () {},
               ),
               IconButton(
                 icon: Icon(
                   Typicons.trash,
-                  size: 14,
+                  size: 16,
                 ),
                 onPressed: () {},
               )
             ],
           ),
-          Container(
-            decoration:
-                BoxDecoration(borderRadius: BorderRadius.circular(kRadius)),
-            height: AppSize(context).height * 0.4,
-            width: AppSize(context).width * 0.9,
-            child: Image.network(
-              data["thumbnail_src"],
-              cacheHeight: 512,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(kRadius),
+            child: Container(
+              decoration: BoxDecoration(color: Colors.black),
+              height: AppSize(context).height * 0.4,
+              width: AppSize(context).width * 0.8,
+              child: Image.network(
+                data["thumbnail_src"],
+                fit: BoxFit.cover,
+                cacheHeight: 512,
+              ),
             ),
-          )
+          ),
+          TextButton(
+              onPressed: () {
+                showBarModalBottomSheet(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.transparent),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(kRadius),
+                        topRight: Radius.circular(kRadius),
+                      ),
+                    ),
+                    context: context,
+                    barrierColor: Colors.black54,
+                    builder: (context) {
+                      return Material(
+                          child: SizedBox(
+                        height: AppSize(context).height * 0.45,
+                        child: Padding(
+                          padding: EdgeInsets.all(kPadding),
+                          child: ListView(children: [
+                            SelectableText(data["caption"] ?? "")
+                          ]),
+                        ),
+                      ));
+                    });
+              },
+              child: Text("See caption"))
         ],
       ),
     );
