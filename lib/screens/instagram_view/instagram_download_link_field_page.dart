@@ -28,6 +28,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
   InstagramRepository repository = InstagramRepository();
 
   ReceivePort _port = ReceivePort();
+  String progress = "";
 
   @override
   void initState() {
@@ -37,8 +38,10 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
     _port.listen((dynamic data) {
       String id = data[0];
       DownloadTaskStatus status = data[1];
-      int progress = data[2];
-      setState(() {});
+      int progressValue = data[2];
+      setState(() {
+        progress = progressValue.toString();
+      });
     });
 
     FlutterDownloader.registerCallback(downloadCallback);
@@ -134,6 +137,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                   ),
                 )),
           ),
+          Text("$progress"),
           Positioned(
             top: AppSize(context).height * 0.258,
             right: kPadding,
@@ -143,14 +147,13 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                     borderRadius: BorderRadius.circular(kRadius)),
                 width: AppSize(context).width * 0.12,
                 child: IconButton(
-                  icon: Icon(
-                    FontAwesome.down_circled,
-                    color: Colors.pink,
-                  ),
-                  onPressed: () async {
-                    await validateLinkAndDownload();
-                  },
-                )),
+                    icon: Icon(
+                      FontAwesome.down_circled,
+                      color: Colors.pink,
+                    ),
+                    onPressed: () {
+                      validateLinkAndDownload();
+                    })),
           ),
         ],
       ),
@@ -158,38 +161,39 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
   }
 
   validateLinkAndDownload() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        var response = await repository.getTypeOfMedia(_linkCtrl.text);
+    //if (_formKey.currentState!.validate()) {
+    try {
+      var response = await repository.getTypeOfMedia(_linkCtrl.text);
 
-        if (response == POSTTYPE.REEL) {
-          var response = await repository.downloadReels(_linkCtrl.text);
-          print(response);
+      if (response == POSTTYPE.REEL) {
+        var response = await repository.downloadReels(_linkCtrl.text);
+        print(response);
+        final status = await Permission.storage.request();
+        print(status);
+        if (status.isGranted) {
+          final tasks = await FlutterDownloader.loadTasks();
 
-          final status = await Permission.storage.request();
-          print(status);
-          if (status.isGranted) {
-            final tasks = await FlutterDownloader.loadTasks();
-            print(tasks);
-            final tempDir = await getExternalStorageDirectory();
-            var uuid = Uuid();
-            var fileName = uuid.v1();
-            final taskId = await FlutterDownloader.enqueue(
-                    url: response["link"],
-                    savedDir: tempDir!.path,
-                    fileName: fileName,
-                    showNotification: true,
-                    openFileFromNotification: true)
-                .then((value) async {
-              var reelsBox = await Hive.openBox("reels");
-              reelsBox.put(fileName, response);
-            });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Storage permission denied")));
-          }
-        } else {}
-      } on SocketException catch (err) {}
+          final tempDir = await getExternalStorageDirectory();
+          var uuid = Uuid();
+          var fileName = uuid.v1();
+          final taskId = await FlutterDownloader.enqueue(
+                  url: response["link"],
+                  savedDir: tempDir!.path,
+                  fileName: fileName,
+                  showNotification: true,
+                  openFileFromNotification: true)
+              .then((value) async {
+            var reelsBox = await Hive.openBox("reels");
+            reelsBox.put(fileName, response);
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Storage permission denied")));
+        }
+      } else {}
+    } on SocketException catch (err) {
+      print(err);
     }
   }
+  // }
 }

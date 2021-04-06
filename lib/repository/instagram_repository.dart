@@ -6,15 +6,17 @@ import 'package:http/http.dart' as http;
 
 enum POSTTYPE { POST, REEL }
 
-class InstagramRepository extends HttpService {
+class InstagramRepository with HttpService {
   Future<POSTTYPE> getTypeOfMedia(String link) async {
     var q = getInstaGraphQLLink(link);
 
     var response = await getRequest(
       uri: q,
     );
+    print(response["graphql"]["shortcode_media"]["is_video"]);
 
     if (response["graphql"]["shortcode_media"]["is_video"]) {
+      print(response);
       return POSTTYPE.REEL;
     }
     return POSTTYPE.POST;
@@ -26,17 +28,15 @@ class InstagramRepository extends HttpService {
     var downloadURL = await http.get(
       Uri.parse('$q'),
     );
-    print(downloadURL.body);
+
     var data = jsonDecode(downloadURL.body);
     var graphql = data['graphql'];
     var shortcodeMedia = graphql['shortcode_media'];
-
     Map<String, dynamic> result = Map();
     result.putIfAbsent(
         "profilePicture", () => shortcodeMedia["owner"]["profile_pic_url"]);
     result.putIfAbsent("username", () => shortcodeMedia["owner"]["username"]);
-    result.putIfAbsent(
-        "thumbnail_src", () => shortcodeMedia["owner"]["thumbnail_src"]);
+    result.putIfAbsent("thumbnail_src", () => shortcodeMedia["thumbnail_src"]);
     result.putIfAbsent("link", () => shortcodeMedia["video_url"]);
     return result;
   }
