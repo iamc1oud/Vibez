@@ -5,6 +5,9 @@ import 'package:vibez/_utils/utils.dart';
 
 // ignore: must_be_immutable
 class DownloadSection extends StatefulWidget {
+  final int? length;
+
+  const DownloadSection({Key? key, this.length}) : super(key: key);
   @override
   _DownloadSectionState createState() => _DownloadSectionState();
 }
@@ -80,7 +83,7 @@ class _DownloadSectionState extends State<DownloadSection> {
                       text: "Downloads\t\t",
                       children: [
                         TextSpan(
-                            text: "$length files",
+                            text: "${widget.length} files",
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyText1!

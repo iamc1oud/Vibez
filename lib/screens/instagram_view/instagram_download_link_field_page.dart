@@ -63,14 +63,16 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: AppSize(context).height * 0.4,
+      expandedHeight: AppSize(context).height * 0.3,
       backgroundColor: Colors.transparent,
       pinned: true,
+      floating: true,
       elevation: 0,
+      forceElevated: true,
       flexibleSpace: FlexibleSpaceBar(
         background: AnimatedContainer(
           duration: Duration(milliseconds: 300),
-          height: AppSize(context).height * 0.4,
+          height: AppSize(context).height * 0.3,
           child: Stack(
             children: [
               Container(
@@ -81,13 +83,19 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                     gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFF58529),
-                          Color(0xFFDD2476),
-                        ])),
+                        colors: MediaQuery.of(context).platformBrightness ==
+                                Brightness.dark
+                            ? [
+                                Color(0xFFF58529),
+                                Color(0xFFDD2476),
+                              ]
+                            : [
+                                Color(0xFF413DB5),
+                                Color(0xFF140F2D),
+                              ])),
               ),
               Positioned(
-                top: AppSize(context).height * 0.1,
+                top: AppSize(context).height * 0.05,
                 left: kPadding,
                 child: Container(
                   child: Text(
@@ -100,7 +108,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                 ),
               ),
               Positioned(
-                top: AppSize(context).height * 0.1,
+                top: AppSize(context).height * 0.05,
                 right: kPadding,
                 child: Container(
                     child: IconButton(
@@ -112,6 +120,15 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                         builder: (context) {
                           return SizedBox(
                             height: AppSize(context).height * 0.4,
+                            child: ListTile(
+                              title: Text("Enable dark mode"),
+                              trailing: Switch(
+                                value: true,
+                                onChanged: (val) {
+                                  print(val);
+                                },
+                              ),
+                            ),
                           );
                         });
                   },
@@ -119,7 +136,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                 )),
               ),
               Positioned(
-                top: AppSize(context).height * 0.2,
+                top: AppSize(context).height * 0.12,
                 left: kPadding,
                 child: Container(
                     height: 120,
@@ -143,9 +160,8 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                       ),
                     )),
               ),
-              Text("$progress"),
               Positioned(
-                top: AppSize(context).height * 0.258,
+                top: AppSize(context).height * 0.175,
                 right: kPadding,
                 child: Container(
                     decoration: BoxDecoration(
@@ -161,6 +177,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                           validateLinkAndDownload();
                         })),
               ),
+              Align(alignment: Alignment.center, child: Text("$progress")),
             ],
           ),
         ),
@@ -172,7 +189,8 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
     //if (_formKey.currentState!.validate()) {
     try {
       var response = await repository.getTypeOfMedia(_linkCtrl.text);
-
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(response.toString())));
       if (response == POSTTYPE.REEL) {
         var response = await repository.downloadReels(_linkCtrl.text);
         print(response);

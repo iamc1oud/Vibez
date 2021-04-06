@@ -14,28 +14,29 @@ class AppTheme {
     return ThemeData(
         fontFamily: "ProductSans",
         iconTheme: IconThemeData(color: Colors.white),
+        inputDecorationTheme: InputDecorationTheme(
+            fillColor: darkScaffold,
+            hintStyle: baseDarkThemeTextStyle,
+            labelStyle: baseDarkThemeTextStyle.copyWith(color: Colors.white)),
         textButtonTheme: TextButtonThemeData(
             style: ButtonStyle(
                 textStyle: MaterialStateProperty.all(TextStyle()),
                 backgroundColor:
                     MaterialStateProperty.all(Colors.transparent))),
         textTheme: TextTheme(
-            bodyText1: TextStyle(
-              color: Colors.white,
-            ),
-            headline1: baseTextTheme,
-            headline2: baseTextTheme,
-            headline3: baseTextTheme,
-            headline4: baseTextTheme,
-            headline5: baseTextTheme,
-            headline6: baseTextTheme),
+            bodyText1: baseDarkThemeTextStyle,
+            headline1: baseDarkThemeTextStyle,
+            headline2: baseDarkThemeTextStyle,
+            headline3: baseDarkThemeTextStyle,
+            headline4: baseDarkThemeTextStyle,
+            headline5: baseDarkThemeTextStyle,
+            headline6: baseDarkThemeTextStyle),
         scaffoldBackgroundColor: darkScaffold,
         primaryColor: Colors.white);
   }
 
-  static TextStyle get baseTextTheme => TextStyle(
-        color: Colors.white,
-      );
+  static TextStyle get baseDarkThemeTextStyle =>
+      TextStyle(color: Colors.white, letterSpacing: 1.4);
 
-  static Color darkScaffold = Color(0xFF1b262c);
+  static Color darkScaffold = Color(0xFF121212);
 }

@@ -45,7 +45,7 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
           : CustomScrollView(
               slivers: [
                 InstagramLinkPage(),
-                DownloadSection(),
+                DownloadSection(length: length ?? 0),
                 SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                   return _buildMetadataCard(
@@ -54,27 +54,6 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
               ],
             ),
     );
-  }
-
-  SliverPersistentHeader makeHeader({
-    Widget? child,
-  }) {
-    return SliverPersistentHeader(
-        pinned: true,
-        floating: false,
-        delegate: SliverAppBarDelegate(
-            maxHeight: 150,
-            minHeight: 120,
-            child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: kPadding / 2,
-                ),
-                child: Container(
-                    padding: EdgeInsets.only(
-                      left: kPadding,
-                    ),
-                    color: Colors.white,
-                    child: child))));
   }
 
   Widget _buildMetadataCard(dynamic data) {
@@ -112,16 +91,22 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
               )
             ],
           ),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(kRadius),
-            child: Container(
-              decoration: BoxDecoration(color: Colors.black),
-              height: AppSize(context).height * 0.4,
-              width: AppSize(context).width * 0.8,
-              child: Image.network(
-                data["thumbnail_src"],
-                fit: BoxFit.cover,
-                cacheHeight: 512,
+          Card(
+            elevation: 10,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kRadius),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(kRadius),
+              child: Container(
+                decoration: BoxDecoration(color: Colors.black),
+                height: AppSize(context).height * 0.4,
+                width: AppSize(context).width * 0.9,
+                child: Image.network(
+                  data["thumbnail_src"],
+                  fit: BoxFit.cover,
+                  cacheHeight: 512,
+                ),
               ),
             ),
           ),

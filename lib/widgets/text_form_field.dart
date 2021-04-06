@@ -31,15 +31,18 @@ class VTextFormField extends StatelessWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           obscureText: isObscureText,
           controller: controller,
+          style: Theme.of(context).textTheme.bodyText1,
           keyboardType: inputType,
           validator: (val) => validator!(val),
           decoration: InputDecoration(
               labelText: title,
               hintText: hintText,
               prefixIcon: prefixIcon,
-              labelStyle: Theme.of(context).textTheme.bodyText1,
+              labelStyle: Theme.of(context)
+                  .textTheme
+                  .bodyText1!
+                  .copyWith(color: Colors.white),
               filled: true,
-              fillColor: Colors.white,
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
               )),
