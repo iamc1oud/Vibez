@@ -32,6 +32,8 @@ class InstagramRepository extends HttpService {
     var graphql = data['graphql'];
     var shortcodeMedia = graphql['shortcode_media'];
     var videoUrl = shortcodeMedia['video_url'];
+    Map<String, dynamic> result = Map();
+    result.putIfAbsent("profilePicture", () => graphql[""]);
     return videoUrl; // return download link
   }
 }

@@ -1,6 +1,12 @@
+import 'dart:isolate';
+import 'dart:ui';
+import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:vibez/_utils/utils.dart';
 import 'package:vibez/repository/instagram_repository.dart';
 import 'package:vibez/widgets/text_form_field.dart';
@@ -18,6 +24,36 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
 
   /// Repository
   InstagramRepository repository = InstagramRepository();
+
+  ReceivePort _port = ReceivePort();
+
+  @override
+  void initState() {
+    super.initState();
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState(() {});
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    super.dispose();
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port')!;
+    send.send([id, status, progress]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,8 +159,24 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
     try {
       var response = await repository.getTypeOfMedia(_linkCtrl.text);
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(response.index.toString())));
+      if (response == POSTTYPE.REEL) {
+        var reelLink = await repository.downloadReels(_linkCtrl.text);
+
+        final status = await Permission.storage.request();
+        if (status.isGranted) {
+          //final tempDir = await getExternalStorageDirectory();
+          // var uuid = Uuid();
+          // final taskId = await FlutterDownloader.enqueue(
+          //     url: reelLink,
+          //     savedDir: tempDir!.path,
+          //     fileName: uuid.v1(),
+          //     showNotification: true,
+          //     openFileFromNotification: true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Storage permission denied")));
+        }
+      } else {}
     } catch (err) {
       throw err;
     }

@@ -3,6 +3,7 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:vibez/_utils/utils.dart';
 
+// ignore: must_be_immutable
 class DownloadSection extends StatelessWidget {
   double kDim = 60;
   @override
