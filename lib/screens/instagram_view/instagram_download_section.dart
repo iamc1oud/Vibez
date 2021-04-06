@@ -4,8 +4,20 @@ import 'package:fluttericon/typicons_icons.dart';
 import 'package:vibez/_utils/utils.dart';
 
 // ignore: must_be_immutable
-class DownloadSection extends StatelessWidget {
+class DownloadSection extends StatefulWidget {
+  @override
+  _DownloadSectionState createState() => _DownloadSectionState();
+}
+
+class _DownloadSectionState extends State<DownloadSection> {
   double kDim = 60;
+  int length = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -67,7 +79,7 @@ class DownloadSection extends StatelessWidget {
                     text: "Downloads\t\t",
                     children: [
                       TextSpan(
-                          text: "21 Files",
+                          text: "$length files",
                           style: Theme.of(context)
                               .textTheme
                               .bodyText1!
@@ -76,7 +88,7 @@ class DownloadSection extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline6),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

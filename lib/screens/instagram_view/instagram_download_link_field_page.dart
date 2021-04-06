@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -156,29 +158,38 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
   }
 
   validateLinkAndDownload() async {
-    try {
-      var response = await repository.getTypeOfMedia(_linkCtrl.text);
+    if (_formKey.currentState!.validate()) {
+      try {
+        var response = await repository.getTypeOfMedia(_linkCtrl.text);
 
-      if (response == POSTTYPE.REEL) {
-        var reelLink = await repository.downloadReels(_linkCtrl.text);
+        if (response == POSTTYPE.REEL) {
+          var response = await repository.downloadReels(_linkCtrl.text);
+          print(response);
 
-        final status = await Permission.storage.request();
-        if (status.isGranted) {
-          //final tempDir = await getExternalStorageDirectory();
-          // var uuid = Uuid();
-          // final taskId = await FlutterDownloader.enqueue(
-          //     url: reelLink,
-          //     savedDir: tempDir!.path,
-          //     fileName: uuid.v1(),
-          //     showNotification: true,
-          //     openFileFromNotification: true);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Storage permission denied")));
-        }
-      } else {}
-    } catch (err) {
-      throw err;
+          final status = await Permission.storage.request();
+          print(status);
+          if (status.isGranted) {
+            final tasks = await FlutterDownloader.loadTasks();
+            print(tasks);
+            final tempDir = await getExternalStorageDirectory();
+            var uuid = Uuid();
+            var fileName = uuid.v1();
+            final taskId = await FlutterDownloader.enqueue(
+                    url: response["link"],
+                    savedDir: tempDir!.path,
+                    fileName: fileName,
+                    showNotification: true,
+                    openFileFromNotification: true)
+                .then((value) async {
+              var reelsBox = await Hive.openBox("reels");
+              reelsBox.put(fileName, response);
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Storage permission denied")));
+          }
+        } else {}
+      } on SocketException catch (err) {}
     }
   }
 }
