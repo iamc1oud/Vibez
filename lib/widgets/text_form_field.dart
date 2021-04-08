@@ -31,12 +31,21 @@ class VTextFormField extends StatelessWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           obscureText: isObscureText,
           controller: controller,
-          style: Theme.of(context).textTheme.bodyText1,
+          cursorColor: Colors.white,
+          style: Theme.of(context)
+              .textTheme
+              .bodyText1!
+              .copyWith(color: Colors.white),
           keyboardType: inputType,
           validator: (val) => validator!(val),
           decoration: InputDecoration(
+              floatingLabelBehavior: FloatingLabelBehavior.auto,
               labelText: title,
               hintText: hintText,
+              hintStyle: Theme.of(context)
+                  .textTheme
+                  .bodyText1!
+                  .copyWith(color: Colors.white),
               prefixIcon: prefixIcon,
               labelStyle: Theme.of(context)
                   .textTheme

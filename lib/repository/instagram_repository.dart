@@ -6,23 +6,22 @@ import 'package:http/http.dart' as http;
 
 enum POSTTYPE { POST, REEL }
 
-class InstagramRepository with HttpService {
+abstract class InstagramRepository with HttpService {
+  /// Get the type of media for the provided link
   Future<POSTTYPE> getTypeOfMedia(String link) async {
     var q = getInstaGraphQLLink(link);
 
     var response = await getRequest(
       uri: q,
     );
-    print(response["graphql"]["shortcode_media"]["is_video"]);
 
     if (response["graphql"]["shortcode_media"]["is_video"]) {
-      print(response);
       return POSTTYPE.REEL;
     }
     return POSTTYPE.POST;
   }
 
-  //Download reels video
+  /// Download handler for Instagram videos and reels
   Future<Map<String, dynamic>> downloadReels(String link) async {
     var q = getInstaGraphQLLink(link);
     var downloadURL = await http.get(

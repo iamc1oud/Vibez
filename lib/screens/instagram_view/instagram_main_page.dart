@@ -1,71 +1,45 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/iconic_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
-import 'package:hive/hive.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sticky_headers/sticky_headers/widget.dart';
+import 'package:provider/provider.dart';
 import 'package:vibez/_utils/constants.dart';
 import 'package:vibez/_utils/screen_size.dart';
+import 'package:vibez/caching/hive_cache.dart';
 import 'package:vibez/screens/instagram_view/instagram_download_link_field_page.dart';
 import 'package:vibez/screens/instagram_view/instagram_download_section.dart';
-import 'package:vibez/widgets/sliver_list_header.dart';
 import 'package:vibez/widgets/styled_load_spinner.dart';
 
-class InstagramMainPage extends StatefulWidget {
+class MainPage extends StatefulWidget {
   @override
-  _InstagramMainPageState createState() => _InstagramMainPageState();
+  _MainPageState createState() => _MainPageState();
 }
 
-class _InstagramMainPageState extends State<InstagramMainPage> {
-  int? length;
-  Box? storageBox;
+class _MainPageState extends State<MainPage> {
   @override
   void initState() {
-    openBox();
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      reelsNotifier?.openBox("reels");
+      reelsNotifier?.getSizeOfData();
+    });
     super.initState();
   }
 
-  openBox() async {
-    var box = await Hive.openBox("reels");
-    setState(() {
-      storageBox = box;
-      length = storageBox?.toMap().keys.length;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: storageBox == null
-          ? StyledLoadSpinner()
-          : CustomScrollView(
-              slivers: [
-                InstagramLinkPage(),
-                DownloadSection(length: length ?? 0),
-                SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                  return _buildMetadataCard(
-                      storageBox?.values.elementAt(index));
-                }, childCount: storageBox?.keys.length ?? 0))
-              ],
-            ),
-    );
-  }
+  ReelsHiveNotifier? reelsNotifier;
 
   Widget _buildMetadataCard(dynamic data) {
     return Padding(
       padding:
-          EdgeInsets.symmetric(horizontal: kPadding, vertical: kPadding / 2),
+          EdgeInsets.symmetric(horizontal: kPadding, vertical: kPadding * 0.1),
       child: Column(
         children: [
           Row(
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(data["profilePicture"]),
+                radius: 16,
+                backgroundImage: NetworkImage(
+                  data["profilePicture"],
+                ),
               ),
               Spacer(
                 flex: 1,
@@ -92,7 +66,7 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
             ],
           ),
           Card(
-            elevation: 10,
+            elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kRadius),
             ),
@@ -100,12 +74,12 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
               borderRadius: BorderRadius.circular(kRadius),
               child: Container(
                 decoration: BoxDecoration(color: Colors.black),
-                height: AppSize(context).height * 0.4,
+                height: AppSize(context).height * 0.3,
                 width: AppSize(context).width * 0.9,
                 child: Image.network(
                   data["thumbnail_src"],
                   fit: BoxFit.cover,
-                  cacheHeight: 512,
+                  cacheWidth: 250,
                 ),
               ),
             ),
@@ -138,6 +112,27 @@ class _InstagramMainPageState extends State<InstagramMainPage> {
               child: Text("See caption"))
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    reelsNotifier = context.watch<ReelsHiveNotifier>();
+
+    return Scaffold(
+      body: reelsNotifier?.box == null
+          ? Center(child: StyledLoadSpinner())
+          : CustomScrollView(
+              slivers: [
+                InstagramLinkPage(),
+                DownloadSection(length: reelsNotifier?.length ?? 0),
+                SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                  return _buildMetadataCard(
+                      reelsNotifier?.box?.values.elementAt(index));
+                }, childCount: reelsNotifier?.box?.keys.length ?? 0))
+              ],
+            ),
     );
   }
 }

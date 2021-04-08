@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-abstract class HttpService {
+mixin HttpService {
   Future<dynamic> getRequest(
       {String? uri, Map<String, String>? queryParameters}) async {
     http.Response response =
