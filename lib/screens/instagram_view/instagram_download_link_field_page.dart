@@ -9,13 +9,11 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vibez/_utils/utils.dart';
 import 'package:vibez/caching/hive_cache.dart';
 import 'package:vibez/providers/instagram_provider.dart';
-import 'package:vibez/widgets/styled_load_spinner.dart';
 import 'package:vibez/widgets/text_form_field.dart';
 
 class InstagramLinkPage extends StatefulWidget {
@@ -24,8 +22,6 @@ class InstagramLinkPage extends StatefulWidget {
 }
 
 class _InstagramLinkPageState extends State<InstagramLinkPage> {
-  /// Loading bar for showing status that file is downloading
-  bool _isDownloading = false;
   TextEditingController _linkCtrl = TextEditingController();
 
   /// Form state
@@ -113,6 +109,12 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                       child: VTextFormField(
                         inputType: TextInputType.url,
                         controller: _linkCtrl,
+                        validator: (String val) {
+                          if (val.isEmpty) {
+                            return "Provide link";
+                          }
+                          return null;
+                        },
                         prefixIcon: Icon(
                           FontAwesome.link,
                           color: Colors.pink,

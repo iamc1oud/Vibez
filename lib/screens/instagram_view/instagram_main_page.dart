@@ -1,9 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/iconic_icons.dart';
-import 'package:fluttericon/typicons_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:vibez/_utils/constants.dart';
@@ -53,11 +52,12 @@ class _MainPageState extends State<MainPage> {
               Text("@${data["username"]}",
                   style: Theme.of(context).textTheme.bodyText1!),
               Spacer(
-                flex: 6,
+                flex: 7,
               ),
               IconButton(
                 icon: Icon(
                   Iconic.share,
+                  color: Colors.green,
                   size: 16,
                 ),
                 onPressed: () async {
@@ -66,8 +66,9 @@ class _MainPageState extends State<MainPage> {
               ),
               IconButton(
                 icon: Icon(
-                  Typicons.trash,
+                  CupertinoIcons.trash,
                   size: 16,
+                  color: Colors.redAccent,
                 ),
                 onPressed: () async {
                   final File file = File(data["file_location"]);
@@ -83,22 +84,17 @@ class _MainPageState extends State<MainPage> {
             onTap: () {
               _handleOpenFile(data["file_location"]);
             },
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kRadius),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(kRadius),
-                child: Container(
-                  decoration: BoxDecoration(color: Colors.black),
-                  height: AppSize(context).height * 0.2,
-                  width: AppSize(context).width * 0.95,
-                  child: Image.file(
-                    File(data["thumbnail"]),
-                    fit: BoxFit.cover,
-                    cacheWidth: 250,
-                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(kRadius / 2),
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.transparent)),
+                height: AppSize(context).height * 0.2,
+                width: AppSize(context).width * 0.95,
+                child: Image.file(
+                  File(data["thumbnail"]),
+                  fit: BoxFit.cover,
+                  cacheWidth: 250,
                 ),
               ),
             ),
@@ -142,6 +138,7 @@ class _MainPageState extends State<MainPage> {
     var instagramNotifier = context.watch<InstagramProvider>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: reelsNotifier?.box == null
           ? Center(child: StyledLoadSpinner())
           : Stack(
@@ -157,7 +154,7 @@ class _MainPageState extends State<MainPage> {
                         yTransValue = 0;
                       });
                     }
-                    return true;
+                    return false;
                   },
                   child: CustomScrollView(
                     slivers: [
@@ -175,7 +172,7 @@ class _MainPageState extends State<MainPage> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.only(bottom: kPadding),
                     child: AnimatedContainer(
                       color: Colors.transparent,
                       transform: Matrix4.translationValues(0, yTransValue, 0),
@@ -184,8 +181,13 @@ class _MainPageState extends State<MainPage> {
                         width: AppSize(context).width * 0.6,
                         height: 60,
                         decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [Colors.pink, Colors.pink]),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.cyan[50]!,
+                                  spreadRadius: 1,
+                                  blurRadius: 5)
+                            ],
+                            //color: Color(0xFF45a32d),
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(32)),
                         child: Row(

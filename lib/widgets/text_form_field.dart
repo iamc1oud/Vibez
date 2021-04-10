@@ -37,9 +37,10 @@ class VTextFormField extends StatelessWidget {
               .bodyText1!
               .copyWith(color: Colors.white),
           keyboardType: inputType,
-          validator: (String? val) {
-            if (validator != null) validator!(val);
-            return null;
+          validator: (val) {
+            if (validator != null) {
+              validator!(val);
+            }
           },
           decoration: InputDecoration(
               floatingLabelBehavior: FloatingLabelBehavior.auto,
