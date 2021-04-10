@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:vibez/caching/hive_cache.dart';
 import 'package:vibez/providers/instagram_provider.dart';
@@ -11,17 +13,18 @@ import 'package:vibez/theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  Hive.init((await getExternalStorageDirectory())!.path);
+
   SystemChrome.setEnabledSystemUIOverlays([]);
 
-  /// Call services
-  ReelsHiveNotifier hiveNotifier = ReelsHiveNotifier();
-  InstagramProvider instagramNotifier = InstagramProvider();
+  await FlutterDownloader.initialize(debug: false);
 
-  await FlutterDownloader.initialize(debug: true);
+  /// Call services
+  InstagramProvider instagramNotifier = InstagramProvider();
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider.value(value: hiveNotifier),
+      ChangeNotifierProvider(create: (_) => ReelsHiveNotifier()),
       ChangeNotifierProvider.value(value: instagramNotifier)
     ],
     child: App(),

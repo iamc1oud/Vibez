@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:vibez/_utils/utils.dart';
 import 'package:vibez/caching/hive_cache.dart';
 import 'package:vibez/providers/instagram_provider.dart';
+import 'package:vibez/widgets/styled_load_spinner.dart';
 import 'package:vibez/widgets/text_form_field.dart';
 
 class InstagramLinkPage extends StatefulWidget {
@@ -68,37 +71,23 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
     instagramNotifier = context.watch<InstagramProvider>();
     return SliverAppBar(
       expandedHeight: AppSize(context).height * 0.3,
-      backgroundColor: Colors.transparent,
       pinned: true,
       floating: true,
+      backgroundColor: Colors.transparent,
       elevation: 0,
       forceElevated: true,
       flexibleSpace: FlexibleSpaceBar(
-        background: AnimatedContainer(
-          duration: Duration(milliseconds: 300),
+        background: Container(
           height: AppSize(context).height * 0.3,
           child: Stack(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(kRadius),
-                        bottomRight: Radius.circular(kRadius)),
-                    gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        // colors: MediaQuery.of(context).platformBrightness ==
-                        //         Brightness.dark
-                        //?
-                        colors: [
-                          Color(0xFFF58529),
-                          Color(0xFFDD2476),
-                        ]
-                        //:
-                        // colors: [
-                        //   Color(0xFF413DB5),
-                        //   Color(0xFF140F2D),]
-                        )),
+              Positioned(
+                left: 0,
+                right: 0,
+                child: Image.asset(
+                  "assets/giphy.gif",
+                  fit: BoxFit.cover,
+                ),
               ),
               Positioned(
                 top: AppSize(context).height * 0.05,
@@ -113,34 +102,6 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                   ),
                 ),
               ),
-              // Positioned(
-              //   top: AppSize(context).height * 0.05,
-              //   right: kPadding,
-              //   child: Container(
-              //       child: IconButton(
-              //     color: Colors.white,
-              //     onPressed: () {
-              //       showBarModalBottomSheet(
-              //           bounce: true,
-              //           context: context,
-              //           builder: (context) {
-              //             return SizedBox(
-              //               height: AppSize(context).height * 0.4,
-              //               child: ListTile(
-              //                 title: Text("Enable dark mode"),
-              //                 trailing: Switch(
-              //                   value: true,
-              //                   onChanged: (val) {
-              //                     print(val);
-              //                   },
-              //                 ),
-              //               ),
-              //             );
-              //           });
-              //     },
-              //     icon: Icon(FontAwesome.sliders),
-              //)),
-              //),
               Positioned(
                 top: AppSize(context).height * 0.12,
                 left: kPadding,
@@ -151,12 +112,6 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                       key: _formKey,
                       child: VTextFormField(
                         inputType: TextInputType.url,
-                        validator: (String val) {
-                          if (val.isEmpty) {
-                            return "Provide link";
-                          }
-                          return null;
-                        },
                         controller: _linkCtrl,
                         prefixIcon: Icon(
                           FontAwesome.link,
@@ -169,21 +124,16 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
               Positioned(
                 top: AppSize(context).height * 0.175,
                 right: kPadding,
-                child: instagramNotifier!.isDownloadingReel || _isDownloading
-                    ? CircularProgressIndicator()
-                    : Container(
-                        decoration: BoxDecoration(
-                            color: Colors.pink[100],
-                            borderRadius: BorderRadius.circular(kRadius)),
-                        width: AppSize(context).width * 0.12,
-                        child: IconButton(
-                            icon: Icon(
-                              FontAwesome.down_circled,
-                              color: Colors.pink,
-                            ),
-                            onPressed: () {
-                              validateLinkAndDownload();
-                            })),
+                child: Container(
+                    width: AppSize(context).width * 0.12,
+                    child: IconButton(
+                        icon: Icon(
+                          CupertinoIcons.arrow_right,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          validateLinkAndDownload();
+                        })),
               ),
             ],
           ),
@@ -196,24 +146,36 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
     if (_formKey.currentState!.validate()) {
       await instagramNotifier?.downloadReel(_linkCtrl.text);
       var response = instagramNotifier?.data;
-
+      FocusScope.of(context).unfocus();
       final status = await Permission.storage.request();
 
       if (status.isGranted) {
         await FlutterDownloader.loadTasks();
 
         final tempDir = await getExternalStorageDirectory();
+
         var uuid = Uuid();
         var fileName = uuid.v1();
+        var imgSrcPath = tempDir!.path + "/images";
+        var imgNamePath = tempDir.path + '/images/$fileName.jpg';
+        var image = await get(Uri.parse(response!["thumbnail_src"]));
+        await Directory(imgSrcPath).create(recursive: true);
+        File file = File(imgNamePath);
+        file.writeAsBytes(image.bodyBytes);
+
+        response.putIfAbsent("thumbnail", () => imgNamePath);
+        response.putIfAbsent(
+            "file_location", () => tempDir.path + "\/$fileName" + ".mp4");
         await FlutterDownloader.enqueue(
-                url: response?["link"],
-                savedDir: tempDir!.path,
-                fileName: fileName,
+                url: response["link"],
+                savedDir: tempDir.path,
+                fileName: fileName + ".mp4",
                 showNotification: true,
                 openFileFromNotification: true)
             .then((value) async {
           var reelsBox = await Hive.openBox("reels");
           reelsBox.put(fileName, response);
+
           Provider.of<ReelsHiveNotifier>(context, listen: false)
               .getSizeOfData();
         });

@@ -10,11 +10,6 @@ class ReelsHiveNotifier with ChangeNotifier {
   int? _length;
   int? get length => _length;
 
-  /// Constructor
-  ReelsHiveNotifier() {
-    initializeHive();
-  }
-
   /// Initialize hive
   initializeHive() async {
     safePrint("Hive initialized");
