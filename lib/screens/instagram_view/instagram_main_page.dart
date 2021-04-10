@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:fluttericon/iconic_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -76,6 +77,18 @@ class _MainPageState extends State<MainPage> {
                   reelsNotifier!.box!.delete(
                       data["file_location"].split("files/")[1].split(".")[0]);
                   reelsNotifier!.getSizeOfData();
+                  showToast(
+                    'Deleted',
+                    context: context,
+                    animation: StyledToastAnimation.scale,
+                    reverseAnimation: StyledToastAnimation.fade,
+                    position: StyledToastPosition.top,
+                    backgroundColor: Colors.red,
+                    animDuration: Duration(seconds: 1),
+                    duration: Duration(seconds: 2),
+                    curve: Curves.elasticOut,
+                    reverseCurve: Curves.linear,
+                  );
                 },
               )
             ],
