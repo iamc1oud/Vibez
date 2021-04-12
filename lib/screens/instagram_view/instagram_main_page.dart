@@ -7,6 +7,7 @@ import 'package:fluttericon/iconic_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:vibez/_utils/constants.dart';
+import 'package:vibez/_utils/safe_print.dart';
 import 'package:vibez/_utils/screen_size.dart';
 import 'package:vibez/caching/hive_cache.dart';
 import 'package:vibez/providers/instagram_provider.dart';
@@ -74,6 +75,8 @@ class _MainPageState extends State<MainPage> {
                 onPressed: () async {
                   final File file = File(data["file_location"]);
                   await file.delete();
+                  final File thumbnailFile = File(data["thumbnail"]);
+                  await thumbnailFile.delete();
                   reelsNotifier!.box!.delete(
                       data["file_location"].split("files/")[1].split(".")[0]);
                   reelsNotifier!.getSizeOfData();
@@ -173,11 +176,13 @@ class _MainPageState extends State<MainPage> {
                     slivers: [
                       InstagramLinkPage(),
                       DownloadSection(length: reelsNotifier?.length ?? 0),
+
+                      /// Reverse the order of downloaded videos
                       SliverList(
                           delegate:
                               SliverChildBuilderDelegate((context, index) {
-                        return _buildMetadataCard(
-                            reelsNotifier?.box?.values.elementAt(index));
+                        return _buildMetadataCard(reelsNotifier?.box?.getAt(
+                            reelsNotifier!.box!.keys.length - 1 - index));
                       }, childCount: reelsNotifier?.box?.keys.length ?? 0))
                     ],
                   ),
@@ -200,7 +205,6 @@ class _MainPageState extends State<MainPage> {
                                   spreadRadius: 1,
                                   blurRadius: 5)
                             ],
-                            //color: Color(0xFF45a32d),
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(32)),
                         child: Row(
@@ -234,7 +238,6 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _handleOpenFile(String path) async {
-    print(path);
     OpenResult result = await OpenFile.open(
       path,
     );

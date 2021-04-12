@@ -7,7 +7,7 @@ class VTextFormField extends StatelessWidget {
   final VoidCallback? onTapSuffixIcon;
   final bool isObscureText;
   final TextEditingController? controller;
-
+  final Widget? suffixIcon;
   final Widget? prefixIcon;
   final Function? validator;
   final String? hintText;
@@ -20,7 +20,8 @@ class VTextFormField extends StatelessWidget {
       this.controller,
       this.validator,
       this.hintText,
-      this.prefixIcon});
+      this.prefixIcon,
+      this.suffixIcon});
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +46,16 @@ class VTextFormField extends StatelessWidget {
           decoration: InputDecoration(
               floatingLabelBehavior: FloatingLabelBehavior.auto,
               labelText: title,
+              suffixIconConstraints: BoxConstraints(minWidth: 40),
+              suffixIcon: GestureDetector(
+                  onTap: onTapSuffixIcon, child: this.suffixIcon),
               hintText: hintText,
               hintStyle: Theme.of(context)
                   .textTheme
                   .bodyText1!
                   .copyWith(color: Colors.white),
               prefixIcon: prefixIcon,
+              alignLabelWithHint: true,
               labelStyle: Theme.of(context)
                   .textTheme
                   .bodyText1!

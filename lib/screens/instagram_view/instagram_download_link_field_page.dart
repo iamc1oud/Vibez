@@ -107,6 +107,13 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                     child: Form(
                       key: _formKey,
                       child: VTextFormField(
+                        suffixIcon: Icon(
+                          Icons.clear,
+                          color: Colors.white,
+                        ),
+                        onTapSuffixIcon: () {
+                          _linkCtrl.clear();
+                        },
                         inputType: TextInputType.url,
                         controller: _linkCtrl,
                         validator: (String val) {
