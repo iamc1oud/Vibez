@@ -74,7 +74,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
       forceElevated: true,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          height: AppSize(context).height * 0.3,
+          height: 220,
           child: Stack(
             children: [
               Positioned(
@@ -86,7 +86,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                 ),
               ),
               Positioned(
-                top: AppSize(context).height * 0.05,
+                top: 60,
                 left: kPadding,
                 child: Container(
                   child: Text(
@@ -99,7 +99,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                 ),
               ),
               Positioned(
-                top: AppSize(context).height * 0.12,
+                top: 100,
                 left: kPadding,
                 child: Container(
                     height: 120,
@@ -131,7 +131,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                     )),
               ),
               Positioned(
-                top: AppSize(context).height * 0.175,
+                top: 135,
                 right: kPadding,
                 child: Container(
                     width: AppSize(context).width * 0.12,
@@ -155,7 +155,13 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
     if (_formKey.currentState!.validate()) {
       await instagramNotifier?.downloadReel(_linkCtrl.text);
       var response = instagramNotifier?.data;
-      FocusScope.of(context).unfocus();
+
+      if (response!["error"]) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(response["message"])));
+        return;
+      }
+
       final status = await Permission.storage.request();
 
       if (status.isGranted) {
@@ -167,7 +173,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
         var fileName = uuid.v1();
         var imgSrcPath = tempDir!.path + "/images";
         var imgNamePath = tempDir.path + '/images/$fileName.jpg';
-        var image = await get(Uri.parse(response!["thumbnail_src"]));
+        var image = await get(Uri.parse(response["thumbnail_src"]));
         await Directory(imgSrcPath).create(recursive: true);
         File file = File(imgNamePath);
         file.writeAsBytes(image.bodyBytes);

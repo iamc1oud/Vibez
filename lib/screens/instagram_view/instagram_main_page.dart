@@ -187,47 +187,6 @@ class _MainPageState extends State<MainPage> {
                     ],
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: kPadding),
-                    child: AnimatedContainer(
-                      color: Colors.transparent,
-                      transform: Matrix4.translationValues(0, yTransValue, 0),
-                      duration: Duration(milliseconds: 300),
-                      child: Container(
-                        width: AppSize(context).width * 0.6,
-                        height: 60,
-                        decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.cyan[50]!,
-                                  spreadRadius: 1,
-                                  blurRadius: 5)
-                            ],
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(32)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Image.asset(
-                              "assets/ic_instagram.png",
-                              height: 40,
-                            ),
-                            Image.asset(
-                              "assets/ic_pinterest.png",
-                              height: 40,
-                            ),
-                            Image.asset(
-                              "assets/ic_youtube.png",
-                              height: 40,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
                 instagramNotifier.isDownloadingReel
                     ? Container(
                         color: Colors.black54, child: StyledLoadSpinner())

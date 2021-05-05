@@ -1,4 +1,4 @@
-package com.example.vibez
+package com.softai.vibez
 
 import io.flutter.embedding.android.FlutterActivity
 
