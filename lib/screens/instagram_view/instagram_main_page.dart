@@ -150,7 +150,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    reelsNotifier = context.watch<ReelsHiveNotifier>();
+    reelsNotifier = Provider.of<ReelsHiveNotifier>(context);
     var instagramNotifier = context.watch<InstagramProvider>();
 
     return Scaffold(

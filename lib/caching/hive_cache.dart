@@ -14,7 +14,6 @@ class ReelsHiveNotifier with ChangeNotifier {
   void openBox(String name) async {
     _box = await Hive.openBox(
       name,
-      keyComparator: _reverseOrder,
     );
     notifyListeners();
   }
@@ -22,23 +21,6 @@ class ReelsHiveNotifier with ChangeNotifier {
   void getSizeOfData() {
     _length = box?.toMap().keys.length;
     notifyListeners();
-  }
-
-  int _reverseOrder(k1, k2) {
-    if (k1 is int) {
-      if (k2 is int) {
-        if (k1 > k2) {
-          return 1;
-        } else if (k1 < k2) {
-          return -1;
-        } else {
-          return 0;
-        }
-      } else {
-        return 1;
-      }
-    }
-    return 0;
   }
 
   void reset() {}

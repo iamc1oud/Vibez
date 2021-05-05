@@ -144,6 +144,12 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
                           validateLinkAndDownload();
                         })),
               ),
+              TextButton(
+                  onPressed: () async {
+                    var reelsBox = await Hive.openBox("reels");
+                    print(reelsBox.toMap().keys);
+                  },
+                  child: Text("Get box data"))
             ],
           ),
         ),
@@ -156,7 +162,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
       await instagramNotifier?.downloadReel(_linkCtrl.text);
       var response = instagramNotifier?.data;
 
-      if (response!["error"]) {
+      if (response!["error"] == true) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(response["message"])));
         return;
@@ -165,7 +171,7 @@ class _InstagramLinkPageState extends State<InstagramLinkPage> {
       final status = await Permission.storage.request();
 
       if (status.isGranted) {
-        await FlutterDownloader.loadTasks();
+        await FlutterDownloader.cancelAll();
 
         final tempDir = await getExternalStorageDirectory();
 

@@ -24,6 +24,7 @@ abstract class InstagramRepository with HttpService {
   /// Download handler for Instagram videos and reels
   Future<Map<String, dynamic>> downloadReels(String link) async {
     List<dynamic> mediaType = await getTypeOfMedia(link);
+    print(mediaType);
 
     if (mediaType[0] == POSTTYPE.REEL) {
       var graphql = mediaType[1]['graphql'];
